@@ -15,7 +15,7 @@ export default class DungeonScene extends Scene {
     this.gameOver = false;
     this.soundObjectExplodeIsPlaying = false;
     this.theEnd = false;
-    this.maxLevel = 2;
+    this.maxLevel = 25;
   }
 
   create() {
