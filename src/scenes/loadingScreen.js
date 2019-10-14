@@ -1,12 +1,17 @@
 import { Scene } from 'phaser';
 import U from '../utils/usefull';
-import tileset from '../assets/tilesets/_DungeonTilesets.png';
-import tilesetN from '../assets/tilesets/_DungeonTilesets_n.png';
-import sword from '../assets/spritesheets/sword_basic.png';
-import knightIdle from '../assets/spritesheets/knight/knight_idle.png';
-import knightRun from '../assets/spritesheets/knight/knight_run.png';
-import orcIdle from '../assets/spritesheets/monsters/orc-idle.png';
-import orcWalk from '../assets/spritesheets/monsters/orc-walk.png';
+import tileset from '../assets/tilesets/_DungeonTilesets2.png';
+import tilesetN from '../assets/tilesets/_DungeonTilesets2_n.png';
+import transparentPixel from '../assets/transparentPixel.png';
+import ExMachina from '../assets/music/ExMachina.ogg';
+import swordFx from '../assets/sounds/swordFx.ogg';
+import explodeFx from '../assets/sounds/explodeFx.ogg';
+import getLifeFx from '../assets/sounds/getLifeFx.ogg';
+import gameOverFx from '../assets/sounds/gameOver.ogg';
+import enemyExplodeFx from '../assets/sounds/enemyExplodeFx.ogg';
+import atlasObjects from '../assets/atlas/atlas.png';
+import atlasObjectsN from '../assets/atlas/atlas_n.png';
+import atlasObjectsJSON from '../assets/atlas/atlas.json';
 
 export default class LoadingScreen extends Scene {
   constructor() {
@@ -32,45 +37,131 @@ export default class LoadingScreen extends Scene {
     this.showProgressBar();
     
     // Load all assets here
+    this.load.audio('ExMachina', ExMachina);
+    this.load.audio('swordFx', swordFx);
+    this.load.audio('explodeFx', explodeFx);
+    this.load.audio('getLifeFx', getLifeFx);
+    this.load.audio('gameOverFx', gameOverFx);
+    this.load.audio('enemyExplodeFx', enemyExplodeFx);
+
+    this.load.atlas('atlas', [atlasObjects, atlasObjectsN], atlasObjectsJSON);
     this.load.image('tiles', [tileset, tilesetN]);
-    this.load.spritesheet('sword', sword, {
-      frameWidth: 21,
-      frameHeight: 28,
-    });
-    this.load.spritesheet('knight-idle', knightIdle, {
-      frameWidth: 19,
-      frameHeight: 20,
-    });
-    this.load.spritesheet('knight-run', knightRun, {
-      frameWidth: 19,
-      frameHeight: 20,
-    });
-
-    this.load.spritesheet('orc-idle', orcIdle, {
-      frameWidth: 16,
-      frameHeight: 16
-    });
-    this.load.spritesheet('orc-walk', orcWalk, {
-      frameWidth: 16,
-      frameHeight: 16
-    });
-    // this.load.spritesheet('heart', 'spritesheets/hud/spritesheetHeart.png', {
-    //   frameWidth: 16,
-    //   frameHeight: 16
-    // });
-
+    this.load.image('transparentPixel', transparentPixel);
   }
 
-  /**
-   *  Set up animations, plugins etc. that depend on the game assets we just
-   *  loaded.
-   */
   create() {
-    //  We have nothing left to do here. Start the next scene.
-    this.scene.start('LoadingAnims');
+    //  Create all anims here 
+    this.anims.create({
+      key: 'playerIdle',
+      frames: [
+        { key: 'atlas', frame: 'knightIdle0' },
+        { key: 'atlas', frame: 'knightIdle1' },
+        { key: 'atlas', frame: 'knightIdle2' },
+        { key: 'atlas', frame: 'knightIdle3' },
+      ],
+      frameRate: 4,
+      repeat: -1
+    });
+    this.anims.create({
+      key: 'playerRun',
+      frames: [
+        { key: 'atlas', frame: 'knightRun0' },
+        { key: 'atlas', frame: 'knightRun1' },
+        { key: 'atlas', frame: 'knightRun2' },
+        { key: 'atlas', frame: 'knightRun3' },
+      ],
+      frameRate: 8,
+      repeat: -1
+    });
+    this.anims.create({
+      key: 'orcIdle',
+      frames: [
+        { key: 'atlas', frame: 'orcIdle0' },
+        { key: 'atlas', frame: 'orcIdle1' },
+        { key: 'atlas', frame: 'orcIdle2' },
+        { key: 'atlas', frame: 'orcIdle3' },
+      ],
+      frameRate: 4,
+      repeat: -1
+    });
+    this.anims.create({
+      key: 'orcWalk',
+      frames: [
+        { key: 'atlas', frame: 'orcWalk0' },
+        { key: 'atlas', frame: 'orcWalk1' },
+        { key: 'atlas', frame: 'orcWalk2' },
+        { key: 'atlas', frame: 'orcWalk3' },
+      ],
+      frameRate: 4,
+      repeat: -1
+    });
+    this.anims.create({
+      key: 'bossIdle',
+      frames: [
+        { key: 'atlas', frame: 'boss0' },
+        { key: 'atlas', frame: 'boss1' },
+        { key: 'atlas', frame: 'boss2' },
+        { key: 'atlas', frame: 'boss3' },
+      ],
+      frameRate: 12,
+      repeat: -1
+    });
+    this.anims.create({
+      key: 'bossAttack',
+      frames: [
+        { key: 'atlas', frame: 'boss4' },
+        { key: 'atlas', frame: 'boss5' },
+        { key: 'atlas', frame: 'boss6' },
+        { key: 'atlas', frame: 'boss7' },
+      ],
+      frameRate: 12,
+      repeat: -1
+    });
+    this.anims.create({
+      key: 'attackSword',
+      frames: [
+        { key: 'atlas', frame: 'sword0' },
+        { key: 'atlas', frame: 'sword1' },
+        { key: 'atlas', frame: 'sword2' },
+        { key: 'atlas', frame: 'sword3' },
+      ],
+      frameRate: 12,
+      repeat: 0,
+      yoyo: true,
+    });
+
+    this.startText = this.add.bitmapText(this.cameras.main.scrollX + 240, this.cameras.main.scrollY + 280, 'atomic')
+      .setFontSize(25)
+      .setText('Press X to start')
+      .setOrigin(0.5, 0.5)
+      .setTint(0xDA4E38)
+      .setDepth(100);
+    
+    this.infoText = this.add.bitmapText(this.cameras.main.scrollX + 240, this.cameras.main.scrollY + 304, 'atomic')
+      .setFontSize(10)
+      .setText('Use X or K to attack   Use Cursors or WASD to move')
+      .setOrigin(0.5, 0.5)
+      .setDepth(100);
+
+    this.tween = this.tweens.add({
+      targets: this.startText,
+      ease: 'Sine.easeInOut',
+      duration: 1500,
+      delay: 0,
+      repeat: -1,
+      yoyo: true,
+      alpha: {
+        getStart: () => 0.05,
+        getEnd: () => 1,
+      },
+    });
+    this.input.keyboard.once('keydown', () => {
+      this.tween.stop();
+      this.scene.start('DungeonScene');
+    });
+    
   }
 
-  //  ------------------------------------------------------------------------
   showCover() {
     this.add.image(0, 0, 'bgLoadingScreen').setOrigin(0).setSize(U.WIDTH, U.HEIGHT);
   }

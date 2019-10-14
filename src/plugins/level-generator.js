@@ -1,6 +1,4 @@
 import TILES from './tiles-mapping';
-import TilemapVisibility from './tilemap-visibility';
-import Dungeon from '@mikewesthad/dungeon';
 
 export default class LevelGenerator{
 
@@ -17,14 +15,18 @@ export default class LevelGenerator{
   generateDungeonRoom(){
     this.dungeon.rooms.forEach(room => {
       const { x, y, width, height, left, right, top, bottom } = room;
-
+      // generate floor
       this.layer.groundLayer.weightedRandomize(x+1, y+1, width-2, height-2, TILES.FLOOR);
-
-
+      // generate walls
       this.layer.groundLayer.weightedRandomize(left + 1, top, width - 2, 1, TILES.WALL.TOP);
       this.layer.groundLayer.weightedRandomize(left + 1, bottom, width - 2, 1, TILES.WALL.TOP);
-      this.layer.groundLayer.weightedRandomize(left, top + 1, 1, height - 2, TILES.WALL.TOP);
-      this.layer.groundLayer.weightedRandomize(right, top + 1, 1, height - 2, TILES.WALL.TOP);
+      this.layer.groundLayer.weightedRandomize(left, top + 1, 1, height - 2, TILES.WALL.LEFT);
+      this.layer.groundLayer.weightedRandomize(right, top + 1, 1, height - 2, TILES.WALL.RIGHT);
+      // generate corner walls
+      this.layer.groundLayer.weightedRandomize(left, top, 1, 1, TILES.WALL.TOP_LEFT);
+      this.layer.groundLayer.weightedRandomize(right, top, 1, 1, TILES.WALL.TOP_RIGHT);
+      this.layer.groundLayer.weightedRandomize(left, bottom, 1, 1, TILES.WALL.BOTTOM_LEFT);
+      this.layer.groundLayer.weightedRandomize(right, bottom, 1, 1, TILES.WALL.BOTTOM_RIGHT);
 
       let doors = room.getDoorLocations();
       for (let i = 0; i < doors.length; i++) {
@@ -59,8 +61,8 @@ export default class LevelGenerator{
       }else {
         if (room.height >= 5) {
           this.layer.objectLayer.putTileAt(TILES.SKULL, room.centerX - Math.floor(Math.random() * (3 - 1) + 1), room.centerY + Math.floor(Math.random() * (3 - 1) + 1));
-          this.layer.objectLayer.putTilesAt(TILES.BOX, room.centerX - Math.floor(Math.random() * (3 - 1) + 1), room.centerY + Math.floor(Math.random() * (3 - 1) + 1));
-          this.layer.objectLayer.putTilesAt(TILES.BOX, room.centerX + Math.floor(Math.random() * (3 - 1) + 1), room.centerY - Math.floor(Math.random() * (3 - 1) + 1));
+          this.layer.objectLayer.putTilesAt(TILES.BOX, room.centerX - Math.floor(Math.random() * (3 - 1) + 1), room.centerY + Math.floor(Math.random() * (3 - 1)));
+          this.layer.objectLayer.putTilesAt(TILES.BOX, room.centerX + Math.floor(Math.random() * (3 - 1) + 1), room.centerY - Math.floor(Math.random() * (3 - 1) - 1));
         } else {
           this.layer.objectLayer.putTilesAt(TILES.BOX, room.centerX - Math.floor(Math.random() * (5 - 1) + 1), room.centerY - Math.floor(Math.random() * (3 - 1) + 1));
           this.layer.objectLayer.putTilesAt(TILES.BOX, room.centerX + Math.floor(Math.random() * (5 - 1) + 1), room.centerY - Math.floor(Math.random() * (3 - 1) + 1));
